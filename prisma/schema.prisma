@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DB_URL")
 }
 
@@ -10,22 +10,109 @@ generator prisma {
 }
 
 model User {
+  id                Int             @id @default(autoincrement())
+  email             String          @unique
+  password          String
+  firstName         String
+  lastName          String
+  posts             Post[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  Like              Like?           @relation(fields: [likeId], references: [id])
+  likeId            Int?
+  FromFriendRequest FriendRequest[] @relation(name: "from_user")
+  ToFriendRequest   FriendRequest[] @relation(name: "to_user")
+  Garage            Garage[]
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  type      FeedType
+  content   String?
+  comments  Comment[]
+  likes     Like[]
+  authorId  Int?
+  author    User?     @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Like {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String?
-  posts     Post[]
+  user      User[]
+  Post      Post?    @relation(fields: [postId], references: [id])
+  postId    Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Post {
+model Comment {
   id        Int      @id @default(autoincrement())
-  published Boolean  @default(false)
-  title     String
-  content   String?
-  authorId  Int?
-  author    User?    @relation(fields: [authorId], references: [id])
+  content   String
+  Post      Post?    @relation(fields: [postId], references: [id])
+  postId    Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Garage {
+  id        Int       @id @default(autoincrement())
+  vehicles  Vehicle[]
+  owner     User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    Int
+}
+
+model Vehicle {
+  id        Int      @id @default(autoincrement())
+  year      Int
+  make      Company  @relation(fields: [companyId], references: [id])
+  photos    Photos[]
+  companyId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Garage    Garage?  @relation(fields: [garageId], references: [id])
+  garageId  Int?
+}
+
+model Photos {
+  id        Int      @id @default(autoincrement())
+  url       String
+  Vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicleId Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Company {
+  id        Int       @id @default(autoincrement())
+  Vehicle   Vehicle[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model FriendRequest {
+  id         Int            @id @default(autoincrement())
+  status     RelationStatus
+  toUserId   Int
+  fromUserId Int
+  fromUser   User           @relation(name: "from_user", fields: [fromUserId], references: [id])
+  toUser     User           @relation(name: "to_user", fields: [toUserId], references: [id])
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([toUserId, fromUserId])
+}
+
+enum RelationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum FeedType {
+  POST
+  RELATION
+  VEHICLE_ADDED
 }

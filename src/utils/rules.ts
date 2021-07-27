@@ -1,4 +1,4 @@
-import { shield, rule } from 'graphql-shield'
+import { shield, rule, allow } from 'graphql-shield'
 import { Context } from '../types'
 
 export const rules = {
@@ -14,37 +14,20 @@ export const rules = {
       }
     }
   ),
-  isPostOwner: rule({ cache: 'contextual' })(
-    async (_parent, args, ctx: Context) => {
-      let id = args.where ? args.where.id : args.id
-      try {
-        const author = await ctx.prisma.post
-          .findUnique({
-            where: {
-              id,
-            },
-          })
-          .author()
-        return ctx?.userId === author?.id
-      } catch (e) {
-        return e
-      }
-    }
-  ),
 }
 
-export const permissions = shield({
-  Query: {
-    me: rules.isAuthenticatedUser,
-    posts: rules.isAuthenticatedUser,
-    post: rules.isAuthenticatedUser,
+export const permissions = shield(
+  {
+    Query: {
+      me: rules.isAuthenticatedUser,
+      '*': allow,
+    },
+    Mutation: {
+      '*': allow,
+    },
   },
-  Mutation: {
-    createDraft: rules.isAuthenticatedUser,
-    deletePost: rules.isPostOwner,
-    publish: rules.isPostOwner,
-  },
-  Subscription: {
-    latestPost: rules.isAuthenticatedUser,
-  },
-})
+  {
+    allowExternalErrors: true,
+    debug: true,
+  }
+)

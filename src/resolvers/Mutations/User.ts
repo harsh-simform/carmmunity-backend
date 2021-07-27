@@ -1,6 +1,7 @@
 import { stringArg, extendType, nonNull } from 'nexus'
 import { compare, hash } from 'bcrypt'
 import { generateAccessToken, returnError } from '../../utils/helpers'
+import { messages } from '../../utils/constants'
 
 export const user = extendType({
   type: 'Mutation',
@@ -8,26 +9,25 @@ export const user = extendType({
     t.field('signup', {
       type: 'SignupResult',
       args: {
-        name: stringArg(),
+        firstName: stringArg(),
+        lastName: stringArg(),
         email: nonNull(stringArg()),
         password: nonNull(stringArg()),
       },
-      async resolve(_parent, { name, email, password }, ctx) {
+      async resolve(_parent, { firstName, lastName, email, password }, ctx) {
         try {
           const hashedPassword = await hash(password, 10)
-          const user = await ctx.prisma.user.create({
+          await ctx.prisma.user.create({
             data: {
-              name,
+              firstName,
+              lastName,
               email,
               password: hashedPassword,
             },
           })
 
-          const accessToken = generateAccessToken(user.id)
           return {
-            __typename: 'AuthPayload',
-            accessToken,
-            user,
+            message: messages.SIGNUP_SUCCESS,
           }
         } catch (e) {
           return returnError('userAlreadyExists')

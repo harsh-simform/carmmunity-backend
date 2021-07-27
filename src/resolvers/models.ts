@@ -1,33 +1,12 @@
 import { objectType, unionType } from 'nexus'
 
-export const Post = objectType({
-  name: 'Post',
-  definition(t) {
-    t.nonNull.int('id')
-    t.nonNull.boolean('published')
-    t.nonNull.string('title')
-    t.string('content')
-    t.field('author', {
-      type: 'User',
-      resolve(root, _, ctx) {
-        return ctx.prisma.post.findFirst({ where: { id: root.id } }).author()
-      },
-    })
-  },
-})
-
 export const User = objectType({
   name: 'User',
   definition(t) {
     t.nonNull.int('id')
-    t.string('name')
+    t.string('firstName')
+    t.string('lastName')
     t.nonNull.string('email')
-    t.nonNull.list.field('posts', {
-      type: 'Post',
-      resolve(root, _, ctx) {
-        return ctx.prisma.user.findFirst({ where: { id: root.id } }).posts()
-      },
-    })
   },
 })
 
@@ -64,13 +43,9 @@ export const LoginResult = unionType({
   },
 })
 
-export const SignupResult = unionType({
+export const SignupResult = objectType({
   name: 'SignupResult',
   definition(t) {
-    t.members('AuthPayload', 'UserAlreadyExists')
-  },
-  resolveType(t) {
-    // @ts-ignore
-    return t.__typename
+    t.nonNull.string('message')
   },
 })

@@ -9,6 +9,10 @@ export const APP_SECRET = process.env.APP_SECRET
 
 export const isDev = () => process.env.NODE_ENV === 'development'
 
+export const messages = {
+  SIGNUP_SUCCESS: 'Signup Successful!',
+}
+
 export const errors = {
   invalidUser: {
     __typename: 'InvalidUser',
