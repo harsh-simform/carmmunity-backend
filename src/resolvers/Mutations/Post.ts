@@ -1,5 +1,4 @@
-import { intArg, extendType, nonNull, stringArg, arg } from 'nexus'
-import { returnError } from '../../utils/helpers'
+import { extendType, arg } from 'nexus'
 
 export const post = extendType({
   type: 'Mutation',
@@ -7,38 +6,46 @@ export const post = extendType({
     t.field('createPost', {
       type: 'Post',
       args: { params: arg({ type: 'CreatePostInput' }) },
-      //@ts-ignore
       resolve: async (_parent, { params }, ctx) => {
-        try {
-          const { content, photos } = params
-          const post = await ctx.prisma.post.create({
-            data: {
-              type: 'POST',
-              author: {
-                connect: {
-                  id: ctx.userId,
-                },
+        const { content, photos } = params
+        const post = await ctx.prisma.post.create({
+          data: {
+            type: 'POST',
+            author: {
+              connect: {
+                id: ctx.userId,
               },
-              content,
             },
-          })
-          const photosData = photos.map((item) => {
-            return {
-              url: item,
-              post: {
-                connect: {
-                  id: post.id,
-                },
+            content,
+          },
+        })
+        const photosData = photos.map((item) => {
+          return {
+            url: item,
+            post: {
+              connect: {
+                id: post.id,
               },
-            }
+            },
+          }
+        })
+        const promises = photosData.map(async (item) => {
+          return new Promise<void>(async (resolve, reject) => {
+            ctx.prisma.photos
+              .create({
+                data: item,
+              })
+              .then(() => {
+                resolve()
+              })
+              .catch((err) => {
+                reject(err)
+              })
           })
-          await ctx.prisma.photos.createMany({
-            data: photosData,
-          })
-          return post
-        } catch (err) {
-          return returnError(err)
-        }
+        })
+        await Promise.all(promises)
+        ctx.pubsub.publish('latestPost', post)
+        return post
       },
     })
 
@@ -64,6 +71,29 @@ export const post = extendType({
       },
     })
 
+    t.field('unlikePost', {
+      type: 'Like',
+      args: { params: arg({ type: 'LikePostInput' }) },
+      resolve: async (_parent, { params }, ctx) => {
+        const { postId } = params
+        const like = await ctx.prisma.like.findFirst({
+          where: { post: { id: postId } },
+        })
+        return ctx.prisma.like.update({
+          where: {
+            id: like.id,
+          },
+          data: {
+            user: {
+              disconnect: {
+                id: ctx.userId,
+              },
+            },
+          },
+        })
+      },
+    })
+
     t.field('postComment', {
       type: 'Comment',
       args: { params: arg({ type: 'PostCommentInput' }) },
@@ -82,6 +112,59 @@ export const post = extendType({
                 id: postId,
               },
             },
+          },
+        })
+      },
+    })
+
+    t.field('updateComment', {
+      type: 'Comment',
+      args: { params: arg({ type: 'PostCommentInput' }) },
+      resolve: async (_parent, { params }, ctx) => {
+        const { postId, content } = params
+        const comment = await ctx.prisma.comment.findFirst({
+          where: {
+            AND: [
+              {
+                post: { id: postId },
+              },
+              {
+                author: { id: ctx.userId },
+              },
+            ],
+          },
+        })
+        return ctx.prisma.comment.update({
+          where: {
+            id: comment.id,
+          },
+          data: {
+            content: content,
+          },
+        })
+      },
+    })
+
+    t.field('deleteComment', {
+      type: 'Comment',
+      args: { params: arg({ type: 'PostCommentInput' }) },
+      resolve: async (_parent, { params }, ctx) => {
+        const { postId } = params
+        const comment = await ctx.prisma.comment.findFirst({
+          where: {
+            AND: [
+              {
+                post: { id: postId },
+              },
+              {
+                author: { id: ctx.userId },
+              },
+            ],
+          },
+        })
+        return ctx.prisma.comment.delete({
+          where: {
+            id: comment.id,
           },
         })
       },

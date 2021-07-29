@@ -24,6 +24,9 @@ export const permissions = shield(
     Mutation: {
       '*': rules.isAuthenticatedUser,
     },
+    Subscription: {
+      latestPost: rules.isAuthenticatedUser,
+    },
   },
   {
     allowExternalErrors: true,
