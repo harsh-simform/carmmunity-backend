@@ -1,76 +1,139 @@
-import { objectType, unionType } from 'nexus'
-
-export const Post = objectType({
-  name: 'Post',
-  definition(t) {
-    t.nonNull.int('id')
-    t.nonNull.boolean('published')
-    t.nonNull.string('title')
-    t.string('content')
-    t.field('author', {
-      type: 'User',
-      resolve(root, _, ctx) {
-        return ctx.prisma.post.findFirst({ where: { id: root.id } }).author()
-      },
-    })
-  },
-})
+import { enumType, objectType } from 'nexus'
 
 export const User = objectType({
   name: 'User',
   definition(t) {
-    t.nonNull.int('id')
-    t.string('name')
-    t.nonNull.string('email')
-    t.nonNull.list.field('posts', {
-      type: 'Post',
-      resolve(root, _, ctx) {
-        return ctx.prisma.user.findFirst({ where: { id: root.id } }).posts()
-      },
-    })
+    t.model.id()
+    t.model.email()
+    t.model.firstname()
+    t.model.lastname()
+    t.model.garage()
+    t.model.posts()
+    t.model.fromFriendRequest()
+    t.model.toFriendRequest()
+    t.model.createdAt()
+    t.model.updatedAt()
   },
 })
 
-export const AuthPayload = objectType({
-  name: 'AuthPayload',
+export const Post = objectType({
+  name: 'Post',
   definition(t) {
-    t.string('accessToken')
-    t.field('user', { type: 'User' })
+    t.model.id()
+    t.model.content()
+    t.model.author()
+    t.model.comments()
+    t.model.likes()
+    t.model.photos()
+    t.model.type()
+    t.model.createdAt()
+    t.model.updatedAt()
   },
 })
 
-export const InvalidUserError = objectType({
-  name: 'InvalidUser',
+export const Comment = objectType({
+  name: 'Comment',
   definition(t) {
-    t.nonNull.string('message')
+    t.model.id()
+    t.model.content()
+    t.model.post()
+    t.model.createdAt()
+    t.model.updatedAt()
   },
 })
 
-export const UserAlreadyExistsError = objectType({
-  name: 'UserAlreadyExists',
+export const Like = objectType({
+  name: 'Like',
   definition(t) {
-    t.nonNull.string('message')
+    t.model.id()
+    t.model.post()
+    t.model.user()
+    t.model.createdAt()
+    t.model.updatedAt()
   },
 })
 
-export const LoginResult = unionType({
-  name: 'LoginResult',
+export const Garage = objectType({
+  name: 'Garage',
   definition(t) {
-    t.members('AuthPayload', 'InvalidUser')
-  },
-  resolveType(t) {
-    // @ts-ignore
-    return t.__typename
+    t.model.id()
+    t.model.owner()
+    t.model.vehicles()
+    t.model.createdAt()
+    t.model.updatedAt()
   },
 })
 
-export const SignupResult = unionType({
-  name: 'SignupResult',
+export const Vehicle = objectType({
+  name: 'Vehicle',
   definition(t) {
-    t.members('AuthPayload', 'UserAlreadyExists')
+    t.model.id()
+    t.model.garage()
+    t.model.make()
+    t.model.model()
+    t.model.photos()
+    t.model.year()
+    t.model.createdAt()
+    t.model.updatedAt()
   },
-  resolveType(t) {
-    // @ts-ignore
-    return t.__typename
+})
+
+export const Company = objectType({
+  name: 'Company',
+  definition(t) {
+    t.model.id()
+    t.model.id()
+    t.model.name()
+    t.model.vehicle()
+    t.model.vehicleModel()
+    t.model.createdAt()
+    t.model.updatedAt()
   },
+})
+
+export const Photos = objectType({
+  name: 'Photos',
+  definition(t) {
+    t.model.id()
+    t.model.post()
+    t.model.postId()
+    t.model.url()
+    t.model.vehicle()
+    t.model.createdAt()
+    t.model.updatedAt()
+  },
+})
+
+export const FriendRequest = objectType({
+  name: 'FriendRequest',
+  definition(t) {
+    t.model.id()
+    t.model.status()
+    t.model.toUser()
+    t.model.fromUser()
+    t.model.createdAt()
+    t.model.updatedAt()
+  },
+})
+
+export const VehicleModel = objectType({
+  name: 'VehicleModel',
+  definition(t) {
+    t.model.id()
+    t.model.maker()
+    t.model.name()
+    t.model.vehicle()
+    t.model.createdAt()
+    t.model.updatedAt()
+  },
+})
+
+export const FeedType = enumType({
+  name: 'FeedType',
+  members: ['POST', 'RELATION', 'VEHICLE_ADDED'],
+})
+
+export const RelationStatus = enumType({
+  name: 'RelationStatus',
+  members: ['PENDING', 'ACCEPTED', 'REJECTED'],
 })

@@ -16,18 +16,22 @@
     "db:save": "yarn prisma migrate dev --create-only --preview-feature",
     "db:migrate": "yarn prisma migrate dev --preview-feature",
     "db:migrate:prod": "yarn prisma migrate deploy --preview-feature",
-    "postinstall": "yarn generate:prisma"
+    "postinstall": "yarn generate:prisma",
+    "seed": "tsnd ./prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "2.27.0",
     "apollo-server": "2.25.2",
+    "axios": "^0.21.1",
     "bcrypt": "5.0.1",
     "dotenv": "10.0.0",
     "graphql": "15.5.1",
     "graphql-middleware": "6.0.10",
     "graphql-shield": "7.5.0",
-    "jsonwebtoken": "8.5.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwks-rsa": "^2.0.4",
     "nexus": "1.1.0",
+    "nexus-plugin-prisma": "^0.35.0",
     "prisma": "2.27.0"
   },
   "devDependencies": {

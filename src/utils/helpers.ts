@@ -3,6 +3,7 @@ import { PubSub } from 'apollo-server'
 import { sign, verify } from 'jsonwebtoken'
 import { APP_SECRET, Errors, errors, tokens } from './constants'
 import { Context, Token } from '../types'
+import axios from 'axios'
 
 export const handleError = (error: any) => {
   // add any other logging mechanism here e.g. Sentry
@@ -44,10 +45,12 @@ export const createContext = (ctx: any): Context => {
     }
     const token = Authorization.replace('Bearer ', '')
     const verifiedToken = verify(token, APP_SECRET) as Token
-
-    if (!verifiedToken.userId && verifiedToken.type !== tokens.access.name)
+    if (!verifiedToken.sub) {
       userId = -1
-    else userId = verifiedToken.userId
+    } else {
+      const data = verifiedToken.sub.split('|')
+      userId = Number(data[1])
+    }
   } catch (e) {
     userId = -1
   }

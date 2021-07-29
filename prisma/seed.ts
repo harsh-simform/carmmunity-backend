@@ -1,50 +1,70 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Company, VehicleModel } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  const user1 = await prisma.user.create({
-    data: {
-      email: 'alice@prisma.io',
-      name: 'Alice',
-      password: '$2b$10$ZjONRZAxqX2pLoPax2xdcuzABTUEsFanQI6yBYCRtzpRiU4/X1uIu', // "graphql"
-      posts: {
-        create: {
-          title: 'Join us for Prisma Day 2019 in Berlin',
-          content: 'https://www.prisma.io/day/',
-          published: true,
+  // seed run
+  // const company_data = [
+  //   {
+  //     name: 'BMW',
+  //   },
+  //   {
+  //     name: 'Chevrolet',
+  //   },
+  //   {
+  //     name: 'Ford',
+  //   },
+  // ]
+
+  // for (const item of company_data) {
+  //   await prisma.company.create({
+  //     data: {
+  //       name: item.name,
+  //     },
+  //   })
+  // }
+
+  const model_data = [
+    {
+      name: 'BMW X5',
+      company: 1,
+    },
+    {
+      name: 'BMW 5 Series',
+      company: 1,
+    },
+    {
+      name: 'BMW X3',
+      company: 1,
+    },
+    {
+      name: 'Ford EcoSport',
+      company: 3,
+    },
+    {
+      name: 'Ford Figo',
+      company: 3,
+    },
+    {
+      name: 'Ford Aspire',
+      company: 3,
+    },
+  ]
+
+  for (const item of model_data) {
+    await prisma.vehicleModel.create({
+      data: {
+        name: item.name,
+        maker: {
+          connect: {
+            id: item.company,
+          },
         },
       },
-    },
-  })
-  const user2 = await prisma.user.create({
-    data: {
-      email: 'bob@prisma.io',
-      name: 'Bob',
-      password: '$2b$10$o6KioO.taArzboM44Ig85O3ZFZYZpR3XD7mI8T29eP4znU/.xyJbW', // "secret43"
-      posts: {
-        create: [
-          {
-            title: 'Subscribe to GraphQL Weekly for community news',
-            content: 'https://graphqlweekly.com/',
-            published: true,
-          },
-          {
-            title: 'Follow Prisma on Twitter',
-            content: 'https://twitter.com/prisma',
-            published: true,
-          },
-          {
-            title: 'Follow Nexus Prisma plugin',
-            content: 'https://github.com/prisma-labs/nexus-prisma',
-            published: true,
-          },
-        ],
-      },
-    },
-  })
-  console.log({ user1, user2 })
+    })
+  }
 }
 
 main().finally(async () => {
   await prisma.$disconnect()
+  console.log('Seed ran $$$$')
 })

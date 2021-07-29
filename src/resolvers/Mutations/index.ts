@@ -1,7 +1,7 @@
-import * as Posts from './Post'
-import * as Users from './User'
+import * as Post from './Post'
+import * as Vehicle from './Vehicle'
 
 export const Mutation = {
-  ...Posts,
-  ...Users,
+  ...Post,
+  ...Vehicle,
 }
