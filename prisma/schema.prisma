@@ -13,22 +13,24 @@ model User {
   id                Int             @id @default(autoincrement())
   email             String          @unique
   password          String
-  firstName         String
-  lastName          String
+  firstname         String
+  lastname          String
   posts             Post[]
   createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  Like              Like?           @relation(fields: [likeId], references: [id])
+  updatedAt         DateTime?       @updatedAt
+  like              Like?           @relation(fields: [likeId], references: [id])
   likeId            Int?
-  FromFriendRequest FriendRequest[] @relation(name: "from_user")
-  ToFriendRequest   FriendRequest[] @relation(name: "to_user")
-  Garage            Garage[]
+  fromFriendRequest FriendRequest[] @relation(name: "from_user")
+  toFriendRequest   FriendRequest[] @relation(name: "to_user")
+  garage            Garage?
+  Comment           Comment[]
 }
 
 model Post {
   id        Int       @id @default(autoincrement())
   type      FeedType
   content   String?
+  photos    Photos[]
   comments  Comment[]
   likes     Like[]
   authorId  Int?
@@ -40,7 +42,7 @@ model Post {
 model Like {
   id        Int      @id @default(autoincrement())
   user      User[]
-  Post      Post?    @relation(fields: [postId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id])
   postId    Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -49,10 +51,12 @@ model Like {
 model Comment {
   id        Int      @id @default(autoincrement())
   content   String
-  Post      Post?    @relation(fields: [postId], references: [id])
+  author    User     @relation(fields: [userId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id])
   postId    Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  userId    Int
 }
 
 model Garage {
@@ -65,31 +69,47 @@ model Garage {
 }
 
 model Vehicle {
-  id        Int      @id @default(autoincrement())
-  year      Int
-  make      Company  @relation(fields: [companyId], references: [id])
-  photos    Photos[]
+  id             Int          @id @default(autoincrement())
+  year           Int
+  make           Company      @relation(fields: [companyId], references: [id])
+  model          VehicleModel @relation(fields: [vehicleModelId], references: [id])
+  photos         Photos[]
+  companyId      Int
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  garage         Garage?      @relation(fields: [garageId], references: [id])
+  garageId       Int?
+  vehicleModelId Int
+}
+
+model VehicleModel {
+  id        Int       @id @default(autoincrement())
+  name      String
+  maker     Company   @relation(fields: [companyId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  vehicle   Vehicle[]
   companyId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Garage    Garage?  @relation(fields: [garageId], references: [id])
-  garageId  Int?
 }
 
 model Photos {
   id        Int      @id @default(autoincrement())
   url       String
-  Vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
   vehicleId Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  post      Post?    @relation(fields: [postId], references: [id])
+  postId    Int?
 }
 
 model Company {
-  id        Int       @id @default(autoincrement())
-  Vehicle   Vehicle[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id           Int            @id @default(autoincrement())
+  name         String
+  vehicle      Vehicle[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  vehicleModel VehicleModel[]
 }
 
 model FriendRequest {

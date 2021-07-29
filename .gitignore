@@ -105,3 +105,6 @@ dist
 
 # graphql generated 
 src/generated
+
+# pub key
+config/pub.key

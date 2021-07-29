@@ -1,9 +1,11 @@
 import { makeSchema } from 'nexus'
+import { nexusPrisma } from 'nexus-plugin-prisma'
 import { join } from 'path'
 import * as allTypes from './resolvers'
 
 export const schema = makeSchema({
   types: [allTypes],
+  plugins: [nexusPrisma()],
   outputs: {
     typegen: join(__dirname, 'generated', 'index.d.ts'),
     schema: join(__dirname, 'generated', 'schema.graphql'),

@@ -18,7 +18,6 @@ export interface Context {
 // }
 
 export interface Token {
-  userId: number
-  type: string
-  timestamp: number
+  email: string
+  sub: string
 }
