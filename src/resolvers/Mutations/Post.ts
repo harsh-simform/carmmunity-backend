@@ -1,4 +1,4 @@
-import { extendType } from 'nexus'
+import { extendType, intArg } from 'nexus'
 
 export const post = extendType({
   type: 'Mutation',
@@ -147,9 +147,8 @@ export const post = extendType({
 
     t.field('deleteComment', {
       type: 'Comment',
-      args: { params: 'PostCommentInput' },
-      resolve: async (_parent, { params }, ctx) => {
-        const { postId } = params
+      args: { postId: intArg() },
+      resolve: async (_parent, { postId }, ctx) => {
         const comment = await ctx.prisma.comment.findFirst({
           where: {
             AND: [
