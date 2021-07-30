@@ -5,7 +5,7 @@ import * as allTypes from './resolvers'
 
 export const schema = makeSchema({
   types: [allTypes],
-  plugins: [nexusPrisma()],
+  plugins: [nexusPrisma({ experimentalCRUD: true })],
   outputs: {
     typegen: join(__dirname, 'generated', 'index.d.ts'),
     schema: join(__dirname, 'generated', 'schema.graphql'),

@@ -40,3 +40,41 @@ export const PostCommentInput = inputObjectType({
     t.nonNull.string('content')
   },
 })
+
+export const FeedParamsInput = inputObjectType({
+  name: 'FeedParamsInput',
+  definition(t) {
+    t.field('pagination', { type: 'PaginationInput' })
+    t.string('searchTerm')
+  },
+})
+
+export const VehicleParamsInput = inputObjectType({
+  name: 'VehicleParamsInput',
+  definition(t) {
+    t.field('pagination', { type: 'PaginationInput' })
+    t.string('searchTerm')
+  },
+})
+
+export const AddFriendInput = inputObjectType({
+  name: 'AddFriendInput',
+  definition(t) {
+    t.nonNull.int('toUserId')
+  },
+})
+
+export const GetRequestInput = inputObjectType({
+  name: 'GetRequestInput',
+  definition(t) {
+    t.field('pagination', { type: 'PaginationInput' })
+    t.nonNull.field('filter', { type: 'RelationStatus' })
+  },
+})
+
+export const GetFriendsInput = inputObjectType({
+  name: 'GetFriendsInput',
+  definition(t) {
+    t.field('pagination', { type: 'PaginationInput' })
+  },
+})

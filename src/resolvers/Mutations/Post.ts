@@ -1,11 +1,11 @@
-import { extendType, arg } from 'nexus'
+import { extendType } from 'nexus'
 
 export const post = extendType({
   type: 'Mutation',
   definition(t) {
     t.field('createPost', {
       type: 'Post',
-      args: { params: arg({ type: 'CreatePostInput' }) },
+      args: { params: 'CreatePostInput' },
       resolve: async (_parent, { params }, ctx) => {
         const { content, photos } = params
         const post = await ctx.prisma.post.create({
@@ -51,7 +51,7 @@ export const post = extendType({
 
     t.field('likePost', {
       type: 'Like',
-      args: { params: arg({ type: 'LikePostInput' }) },
+      args: { params: 'LikePostInput' },
       resolve: async (_parent, { params }, ctx) => {
         const { postId } = params
         return ctx.prisma.like.create({
@@ -73,7 +73,7 @@ export const post = extendType({
 
     t.field('unlikePost', {
       type: 'Like',
-      args: { params: arg({ type: 'LikePostInput' }) },
+      args: { params: 'LikePostInput' },
       resolve: async (_parent, { params }, ctx) => {
         const { postId } = params
         const like = await ctx.prisma.like.findFirst({
@@ -96,7 +96,7 @@ export const post = extendType({
 
     t.field('postComment', {
       type: 'Comment',
-      args: { params: arg({ type: 'PostCommentInput' }) },
+      args: { params: 'PostCommentInput' },
       resolve: async (_parent, { params }, ctx) => {
         const { postId, content } = params
         return ctx.prisma.comment.create({
@@ -119,7 +119,7 @@ export const post = extendType({
 
     t.field('updateComment', {
       type: 'Comment',
-      args: { params: arg({ type: 'PostCommentInput' }) },
+      args: { params: 'PostCommentInput' },
       resolve: async (_parent, { params }, ctx) => {
         const { postId, content } = params
         const comment = await ctx.prisma.comment.findFirst({
@@ -147,7 +147,7 @@ export const post = extendType({
 
     t.field('deleteComment', {
       type: 'Comment',
-      args: { params: arg({ type: 'PostCommentInput' }) },
+      args: { params: 'PostCommentInput' },
       resolve: async (_parent, { params }, ctx) => {
         const { postId } = params
         const comment = await ctx.prisma.comment.findFirst({

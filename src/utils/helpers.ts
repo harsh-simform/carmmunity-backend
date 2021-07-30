@@ -3,15 +3,14 @@ import { PubSub } from 'apollo-server'
 import { sign, verify } from 'jsonwebtoken'
 import { APP_SECRET, Errors, errors, tokens } from './constants'
 import { Context, Token } from '../types'
-import axios from 'axios'
 
 export const handleError = (error: any) => {
   // add any other logging mechanism here e.g. Sentry
-  throw error
+  throw new Error(error)
 }
 
 export const returnError = (error: keyof Errors) => {
-  return errors[error]
+  throw new Error(errors[error].message)
 }
 
 export const generateAccessToken = (userId: number) => {
