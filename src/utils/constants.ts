@@ -16,9 +16,9 @@ export const messages = {
 }
 
 export const errors = {
-  internalServerError: {
-    __typename: 'InternalServer',
-    message: 'Internal Server Error!',
+  friendRequestNotFound: {
+    __typename: 'FriendRequestNotFound',
+    message: 'Friend request not found',
   },
   invalidUser: {
     __typename: 'InvalidUser',

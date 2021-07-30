@@ -6,7 +6,7 @@ export const vehicle = extendType({
     t.field('createVehicle', {
       type: 'Vehicle',
       args: {
-        params: arg({ type: 'CreateVehicleInput' }),
+        params: 'CreateVehicleInput',
       },
       resolve: async (_parent, { params }, ctx) => {
         const { year, companyId, modelId, photos } = params
@@ -52,9 +52,24 @@ export const vehicle = extendType({
             },
           },
         })
+        const post = await ctx.prisma.post.create({
+          data: {
+            type: 'VEHICLE_ADDED',
+            author: {
+              connect: {
+                id: ctx.userId,
+              },
+            },
+          },
+        })
         const photosData = photos.map((item) => {
           return {
             url: item,
+            post: {
+              connect: {
+                id: post.id,
+              },
+            },
             vehicle: {
               connect: {
                 id: vehicle.id,
@@ -77,6 +92,7 @@ export const vehicle = extendType({
           })
         })
         await Promise.all(promises)
+        ctx.pubsub.publish('latestPost', post)
         return vehicle
       },
     })
