@@ -18,12 +18,11 @@ model User {
   posts             Post[]
   createdAt         DateTime        @default(now())
   updatedAt         DateTime?       @updatedAt
-  like              Like?           @relation(fields: [likeId], references: [id])
-  likeId            Int?
   fromFriendRequest FriendRequest[] @relation(name: "from_user")
   toFriendRequest   FriendRequest[] @relation(name: "to_user")
   garage            Garage?
-  Comment           Comment[]
+  comment           Comment[]
+  like              Like[]
 }
 
 model Post {
@@ -32,7 +31,7 @@ model Post {
   content   String?
   photos    Photos[]
   comments  Comment[]
-  likes     Like?
+  likes     Like[]
   authorId  Int?
   author    User?     @relation(fields: [authorId], references: [id])
   createdAt DateTime  @default(now())
@@ -41,11 +40,12 @@ model Post {
 
 model Like {
   id        Int      @id @default(autoincrement())
-  user      User[]
-  post      Post?    @relation(fields: [postId], references: [id])
-  postId    Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  author    User?    @relation(fields: [userId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id])
+  postId    Int?
+  userId    Int?
 }
 
 model Comment {
@@ -85,6 +85,7 @@ model Vehicle {
 model VehicleModel {
   id        Int       @id @default(autoincrement())
   name      String
+  year      Int?
   maker     Company   @relation(fields: [companyId], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

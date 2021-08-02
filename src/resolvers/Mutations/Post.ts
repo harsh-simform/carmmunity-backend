@@ -56,7 +56,7 @@ export const post = extendType({
         const { postId } = params
         return ctx.prisma.like.create({
           data: {
-            user: {
+            author: {
               connect: {
                 id: ctx.userId,
               },
@@ -77,20 +77,9 @@ export const post = extendType({
       resolve: async (_parent, { params }, ctx) => {
         const { postId } = params
         const like = await ctx.prisma.like.findFirst({
-          where: { post: { id: postId } },
+          where: { post: { id: postId }, author: { id: ctx.userId } },
         })
-        return ctx.prisma.like.update({
-          where: {
-            id: like.id,
-          },
-          data: {
-            user: {
-              disconnect: {
-                id: ctx.userId,
-              },
-            },
-          },
-        })
+        return ctx.prisma.like.delete({ where: { id: like.id } })
       },
     })
 

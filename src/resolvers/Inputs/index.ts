@@ -1,4 +1,4 @@
-import { inputObjectType } from 'nexus'
+import { enumType, inputObjectType } from 'nexus'
 
 export const PaginationInput = inputObjectType({
   name: 'PaginationInput',
@@ -76,5 +76,19 @@ export const GetFriendsInput = inputObjectType({
   name: 'GetFriendsInput',
   definition(t) {
     t.field('pagination', { type: 'PaginationInput' })
+  },
+})
+
+export const MakesFilterInput = inputObjectType({
+  name: 'MakesFilterInput',
+  definition(t) {
+    t.nonNull.int('year')
+  },
+})
+
+export const ModelFilterInput = inputObjectType({
+  name: 'ModelFilterInput',
+  definition(t) {
+    t.nonNull.string('make')
   },
 })

@@ -28,6 +28,23 @@ export const Post = objectType({
     t.model.type()
     t.model.createdAt()
     t.model.updatedAt()
+    t.field('isLiked', {
+      type: 'Boolean',
+      resolve: async (parent, args, ctx) => {
+        const like = await ctx.prisma.like.findFirst({
+          where: {
+            author: {
+              id: ctx.userId,
+            },
+            post: {
+              id: parent.id,
+            },
+          },
+        })
+        if (like) return true
+        return false
+      },
+    })
   },
 })
 
@@ -47,7 +64,7 @@ export const Like = objectType({
   definition(t) {
     t.model.id()
     t.model.post()
-    t.model.user()
+    t.model.author()
     t.model.createdAt()
     t.model.updatedAt()
   },
