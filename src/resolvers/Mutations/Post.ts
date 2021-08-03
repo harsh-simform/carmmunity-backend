@@ -1,4 +1,5 @@
 import { extendType, intArg } from 'nexus'
+import { returnError } from '../../utils/helpers'
 
 export const post = extendType({
   type: 'Mutation',
@@ -54,6 +55,19 @@ export const post = extendType({
       args: { params: 'LikePostInput' },
       resolve: async (_parent, { params }, ctx) => {
         const { postId } = params
+        const checkLikes = await ctx.prisma.like.findFirst({
+          where: {
+            author: {
+              id: ctx.userId,
+            },
+            post: {
+              id: postId,
+            },
+          },
+        })
+        if (checkLikes) {
+          return returnError('alreadyLikedPost')
+        }
         return ctx.prisma.like.create({
           data: {
             author: {
@@ -79,6 +93,9 @@ export const post = extendType({
         const like = await ctx.prisma.like.findFirst({
           where: { post: { id: postId }, author: { id: ctx.userId } },
         })
+        if (!like) {
+          return returnError('resourceNotFound')
+        }
         return ctx.prisma.like.delete({ where: { id: like.id } })
       },
     })

@@ -16,6 +16,10 @@ export const messages = {
 }
 
 export const errors = {
+  resourceNotFound: {
+    __typename: 'ResourceNotFound',
+    message: 'Resource not found',
+  },
   friendRequestNotFound: {
     __typename: 'FriendRequestNotFound',
     message: 'Friend request not found',
@@ -27,6 +31,10 @@ export const errors = {
   userAlreadyExists: {
     __typename: 'UserAlreadyExists',
     message: 'User already exists!',
+  },
+  alreadyLikedPost: {
+    __typename: 'LikeAlreadyExists',
+    message: 'Post is already Liked by User',
   },
 }
 
