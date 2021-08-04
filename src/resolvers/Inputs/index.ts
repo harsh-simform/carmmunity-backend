@@ -1,10 +1,10 @@
-import { enumType, inputObjectType } from 'nexus'
+import { inputObjectType } from 'nexus'
 
 export const PaginationInput = inputObjectType({
   name: 'PaginationInput',
   definition(t) {
-    t.field('skip', { type: 'Int' })
-    t.field('take', { type: 'Int' })
+    t.int('skip')
+    t.int('take')
   },
 })
 
@@ -20,8 +20,8 @@ export const CreateVehicleInput = inputObjectType({
   name: 'CreateVehicleInput',
   definition(t) {
     t.nonNull.int('year')
-    t.nonNull.int('companyId')
-    t.nonNull.int('modelId')
+    t.nonNull.string('company')
+    t.nonNull.string('model')
     t.list.field('photos', { type: 'String' })
   },
 })

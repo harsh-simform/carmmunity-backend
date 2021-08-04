@@ -1,8 +1,19 @@
 import { PrismaClient } from '@prisma/client'
 import { PubSub } from 'apollo-server'
 import { sign, verify } from 'jsonwebtoken'
-import { APP_SECRET, Errors, errors, tokens } from './constants'
+import { APP_SECRET, Errors, errors, IS3FileUpload, tokens } from './constants'
 import { Context, Token } from '../types'
+import { Request, Response, NextFunction } from 'express'
+import * as path from 'path'
+import { S3 } from 'aws-sdk'
+import { PutObjectRequest } from 'aws-sdk/clients/s3'
+import { createReadStream, unlinkSync } from 'fs'
+
+const s3 = new S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
+  region: process.env.AWS_REGION,
+})
 
 export const handleError = (error: any) => {
   // add any other logging mechanism here e.g. Sentry
@@ -30,6 +41,25 @@ export const generateAccessToken = (userId: number) => {
 
 export const prisma = new PrismaClient()
 const pubsub = new PubSub()
+
+export const authMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const Authorization = req.headers.authorization
+  const token = Authorization.replace('Bearer ', '')
+  const verifiedToken = verify(token, APP_SECRET) as Token
+  let userId: number
+  if (!verifiedToken.sub) {
+    userId = -1
+  } else {
+    const data = verifiedToken.sub.split('|')
+    userId = Number(data[1])
+  }
+  req.userId = userId
+  next()
+}
 
 export const createContext = (ctx: any): Context => {
   let userId: number
@@ -59,4 +89,60 @@ export const createContext = (ctx: any): Context => {
     pubsub,
     userId,
   }
+}
+
+export const uploadToS3Bucket = async (
+  data: IS3FileUpload
+): Promise<string | any> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { file, bucketPath } = data
+      const extension = path.extname(file.originalFilename)
+      const newFilename = `${getTime()}${extension}`
+      const newPath = `${bucketPath}/${newFilename}`
+      const myBucket = String(process.env.BUCKET_NAME)
+      const params: PutObjectRequest = {
+        Bucket: myBucket,
+        Key: newPath,
+        Body: createReadStream(file.path),
+        ContentEncoding: 'base64',
+        ACL: 'public-read',
+        ContentType: file.type,
+      }
+      s3.putObject(params, (error, result) => {
+        unlinkSync(file.path)
+        if (error) {
+          reject(error)
+        }
+        resolve(result)
+      })
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+export const fileRemoveFroms3Bucket = (
+  key: string,
+  bucket: string
+): Promise<void> => {
+  const params = {
+    Bucket: bucket,
+    Key: key,
+  }
+  return new Promise((resolve, reject) => {
+    s3.deleteObject(params, function (err, data) {
+      if (err) {
+        reject(err)
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
+export const getTime = () => {
+  const date = new Date()
+  const time = date.getTime()
+  return time
 }

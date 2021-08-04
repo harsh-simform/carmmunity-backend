@@ -31,6 +31,7 @@ export const Post = objectType({
     t.model.updatedAt()
     t.field('isLiked', {
       type: 'Boolean',
+      args: {},
       resolve: async (parent, args, ctx) => {
         const like = await ctx.prisma.like.findFirst({
           where: {
@@ -54,6 +55,7 @@ export const Comment = objectType({
   definition(t) {
     t.model.id()
     t.model.content()
+    t.model.author()
     t.model.post()
     t.model.createdAt()
     t.model.updatedAt()

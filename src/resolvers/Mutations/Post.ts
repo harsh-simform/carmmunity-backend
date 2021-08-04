@@ -1,4 +1,4 @@
-import { extendType, intArg } from 'nexus'
+import { extendType, intArg, stringArg } from 'nexus'
 import { returnError } from '../../utils/helpers'
 
 export const post = extendType({
@@ -125,24 +125,11 @@ export const post = extendType({
 
     t.field('updateComment', {
       type: 'Comment',
-      args: { params: 'PostCommentInput' },
-      resolve: async (_parent, { params }, ctx) => {
-        const { postId, content } = params
-        const comment = await ctx.prisma.comment.findFirst({
-          where: {
-            AND: [
-              {
-                post: { id: postId },
-              },
-              {
-                author: { id: ctx.userId },
-              },
-            ],
-          },
-        })
+      args: { commentId: intArg(), content: stringArg() },
+      resolve: async (_parent, { commentId, content }, ctx) => {
         return ctx.prisma.comment.update({
           where: {
-            id: comment.id,
+            id: commentId,
           },
           data: {
             content: content,
@@ -153,23 +140,11 @@ export const post = extendType({
 
     t.field('deleteComment', {
       type: 'Comment',
-      args: { postId: intArg() },
-      resolve: async (_parent, { postId }, ctx) => {
-        const comment = await ctx.prisma.comment.findFirst({
-          where: {
-            AND: [
-              {
-                post: { id: postId },
-              },
-              {
-                author: { id: ctx.userId },
-              },
-            ],
-          },
-        })
+      args: { commentId: intArg() },
+      resolve: async (_parent, { commentId }, ctx) => {
         return ctx.prisma.comment.delete({
           where: {
-            id: comment.id,
+            id: commentId,
           },
         })
       },
