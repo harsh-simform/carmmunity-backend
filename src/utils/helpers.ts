@@ -1,8 +1,18 @@
 import { PrismaClient } from '@prisma/client'
 import { PubSub } from 'apollo-server'
 import { sign, verify } from 'jsonwebtoken'
-import { APP_SECRET, Errors, errors, tokens } from './constants'
+import { APP_SECRET, Errors, errors, IS3FileUpload, tokens } from './constants'
 import { Context, Token } from '../types'
+import path from 'path'
+import { PutObjectRequest } from 'aws-sdk/clients/s3'
+import { createReadStream, unlinkSync } from 'fs'
+import { S3 } from 'aws-sdk'
+
+const s3 = new S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
+  region: process.env.AWS_REGION,
+})
 
 export const handleError = (error: any) => {
   // add any other logging mechanism here e.g. Sentry
@@ -59,4 +69,58 @@ export const createContext = (ctx: any): Context => {
     pubsub,
     userId,
   }
+}
+
+export const uploadToS3Bucket = async (
+  data: IS3FileUpload
+): Promise<string | any> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { file, bucketPath } = data
+      const extension = path.extname(file.originalname)
+      const newFilename = `${getTime()}${extension}`
+      const newPath = `${bucketPath}/${newFilename}`
+      const myBucket = String(process.env.BUCKET_NAME)
+      const params: PutObjectRequest = {
+        Bucket: myBucket,
+        Key: newPath,
+        Body: createReadStream(file.path),
+        ContentEncoding: 'base64',
+        ACL: 'public-read',
+        ContentType: file.type,
+      }
+      s3.putObject(params, (error, result) => {
+        unlinkSync(file.path)
+        if (error) {
+          reject(error)
+        }
+        resolve({ Key: params.Key })
+      })
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+export const fileRemoveFroms3Bucket = (key: string): Promise<void> => {
+  const myBucket = String(process.env.BUCKET_NAME)
+  const params = {
+    Bucket: myBucket,
+    Key: key,
+  }
+  return new Promise((resolve, reject) => {
+    s3.deleteObject(params, function (err, data) {
+      if (err) {
+        reject(err)
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
+export const getTime = () => {
+  const date = new Date()
+  const time = date.getTime()
+  return time
 }

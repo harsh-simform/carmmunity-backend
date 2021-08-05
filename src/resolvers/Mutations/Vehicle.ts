@@ -1,15 +1,27 @@
-import { extendType, arg } from 'nexus'
+import { extendType, arg, intArg } from 'nexus'
 
 export const vehicle = extendType({
   type: 'Mutation',
   definition(t) {
+    t.field('deleteVehicle', {
+      type: 'Vehicle',
+      args: {
+        vehicleId: intArg(),
+      },
+      resolve: (_parent, { vehicleId }, ctx) => {
+        return ctx.prisma.vehicle.delete({
+          where: { id: vehicleId },
+        })
+      },
+    })
+
     t.field('createVehicle', {
       type: 'Vehicle',
       args: {
         params: 'CreateVehicleInput',
       },
       resolve: async (_parent, { params }, ctx) => {
-        const { year, companyId, modelId, photos } = params
+        const { year, company, model, photos } = params
         const checkUserHasGarage = await ctx.prisma.garage.findFirst({
           where: {
             owner: {
@@ -31,6 +43,51 @@ export const vehicle = extendType({
             },
           })
           garageId = garage.id
+        }
+        let companyId: number
+        const checkCompany = await ctx.prisma.company.findFirst({
+          where: {
+            name: {
+              equals: company,
+              mode: 'insensitive',
+            },
+          },
+        })
+        if (checkCompany) {
+          companyId = checkCompany.id
+        } else {
+          const createCompany = await ctx.prisma.company.create({
+            data: {
+              name: company,
+            },
+          })
+          companyId = createCompany.id
+        }
+        let modelId: number
+        const checkModel = await ctx.prisma.vehicleModel.findFirst({
+          where: {
+            year,
+            name: {
+              equals: model,
+              mode: 'insensitive',
+            },
+          },
+        })
+        if (checkModel) {
+          modelId = checkModel.id
+        } else {
+          const createModel = await ctx.prisma.vehicleModel.create({
+            data: {
+              name: model,
+              year,
+              maker: {
+                connect: {
+                  id: companyId,
+                },
+              },
+            },
+          })
+          modelId = createModel.id
         }
         const vehicle = await ctx.prisma.vehicle.create({
           data: {

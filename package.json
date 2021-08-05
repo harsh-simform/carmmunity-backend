@@ -22,8 +22,11 @@
   "dependencies": {
     "@prisma/client": "2.27.0",
     "apollo-server": "2.25.2",
+    "apollo-server-express": "^2.24.1",
+    "aws-sdk": "^2.961.0",
     "axios": "^0.21.1",
     "bcrypt": "5.0.1",
+    "cors": "^2.8.5",
     "dotenv": "10.0.0",
     "graphql": "15.5.1",
     "graphql-middleware": "6.0.10",
@@ -36,6 +39,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "5.0.0",
+    "@types/cors": "^2.8.12",
     "@types/dotenv": "8.2.0",
     "@types/eslint": "7.28.0",
     "@types/jest": "26.0.24",
