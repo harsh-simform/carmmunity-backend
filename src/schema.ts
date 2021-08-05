@@ -1,10 +1,16 @@
-import { makeSchema } from 'nexus'
+import { makeSchema, scalarType } from 'nexus'
 import { nexusPrisma } from 'nexus-plugin-prisma'
 import { join } from 'path'
 import * as allTypes from './resolvers'
 
+const Json = scalarType({
+  name: 'Json',
+  description: 'Custom JSON type',
+  asNexusMethod: 'Json',
+})
+
 export const schema = makeSchema({
-  types: [allTypes],
+  types: [allTypes, Json],
   plugins: [nexusPrisma({ experimentalCRUD: true })],
   outputs: {
     typegen: join(__dirname, 'generated', 'index.d.ts'),

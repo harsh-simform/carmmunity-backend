@@ -41,6 +41,25 @@ export const generateAccessToken = (userId: number) => {
 export const prisma = new PrismaClient()
 const pubsub = new PubSub()
 
+export const authMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const Authorization = req.headers.authorization
+  const token = Authorization.replace('Bearer ', '')
+  const verifiedToken = verify(token, APP_SECRET) as Token
+  let userId: number
+  if (!verifiedToken.sub) {
+    userId = -1
+  } else {
+    const data = verifiedToken.sub.split('|')
+    userId = Number(data[1])
+  }
+  req.userId = userId
+  next()
+}
+
 export const createContext = (ctx: any): Context => {
   let userId: number
   try {

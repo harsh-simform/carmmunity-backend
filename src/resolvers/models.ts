@@ -7,6 +7,7 @@ export const User = objectType({
     t.model.email()
     t.model.firstname()
     t.model.lastname()
+    t.model.profilePic()
     t.model.garage()
     t.model.posts()
     t.model.fromFriendRequest()
@@ -28,6 +29,24 @@ export const Post = objectType({
     t.model.type()
     t.model.createdAt()
     t.model.updatedAt()
+    t.field('isLiked', {
+      type: 'Boolean',
+      args: {},
+      resolve: async (parent, args, ctx) => {
+        const like = await ctx.prisma.like.findFirst({
+          where: {
+            author: {
+              id: ctx.userId,
+            },
+            post: {
+              id: parent.id,
+            },
+          },
+        })
+        if (like) return true
+        return false
+      },
+    })
   },
 })
 
@@ -36,6 +55,7 @@ export const Comment = objectType({
   definition(t) {
     t.model.id()
     t.model.content()
+    t.model.author()
     t.model.post()
     t.model.createdAt()
     t.model.updatedAt()
@@ -47,7 +67,7 @@ export const Like = objectType({
   definition(t) {
     t.model.id()
     t.model.post()
-    t.model.user()
+    t.model.author()
     t.model.createdAt()
     t.model.updatedAt()
   },
