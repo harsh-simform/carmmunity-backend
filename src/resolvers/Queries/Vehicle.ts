@@ -1,4 +1,4 @@
-import { extendType } from 'nexus'
+import { extendType, intArg, stringArg } from 'nexus'
 import axios from 'axios'
 
 export const vehicle = extendType({
@@ -11,6 +11,21 @@ export const vehicle = extendType({
           `${process.env.CARS_BASE_URL}/${process.env.CARS_API_VERSION}/?cmd=getYears`
         )
         return response.data.Years
+      },
+    })
+
+    t.nonNull.field('getVehicleDetails', {
+      type: 'Json',
+      args: {
+        make: stringArg(),
+        model: stringArg(),
+        year: intArg(),
+      },
+      resolve: async (_parent, { make, model, year }, ctx) => {
+        const response = await axios.get(
+          `${process.env.CARS_BASE_URL}/${process.env.CARS_API_VERSION}/?cmd=getTrims&make=${make}&year=${year}`
+        )
+        return response.data.Trims
       },
     })
 

@@ -97,7 +97,7 @@ export const uploadToS3Bucket = async (
   return new Promise(async (resolve, reject) => {
     try {
       const { file, bucketPath } = data
-      const extension = path.extname(file.originalFilename)
+      const extension = path.extname(file.originalname)
       const newFilename = `${getTime()}${extension}`
       const newPath = `${bucketPath}/${newFilename}`
       const myBucket = String(process.env.BUCKET_NAME)
@@ -114,7 +114,7 @@ export const uploadToS3Bucket = async (
         if (error) {
           reject(error)
         }
-        resolve(result)
+        resolve({ Key: params.Key })
       })
     } catch (error) {
       reject(error)
@@ -122,12 +122,10 @@ export const uploadToS3Bucket = async (
   })
 }
 
-export const fileRemoveFroms3Bucket = (
-  key: string,
-  bucket: string
-): Promise<void> => {
+export const fileRemoveFroms3Bucket = (key: string): Promise<void> => {
+  const myBucket = String(process.env.BUCKET_NAME)
   const params = {
-    Bucket: bucket,
+    Bucket: myBucket,
     Key: key,
   }
   return new Promise((resolve, reject) => {
