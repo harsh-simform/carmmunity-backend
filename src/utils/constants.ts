@@ -11,11 +11,20 @@ export const APP_SECRET = readFileSync(process.env.PRIVATE_KEY, 'ascii')
 
 export const isDev = () => process.env.NODE_ENV === 'development'
 
+export interface IS3FileUpload {
+  file: any
+  bucketPath: string
+}
+
 export const messages = {
   SIGNUP_SUCCESS: 'Signup Successful!',
 }
 
 export const errors = {
+  resourceNotFound: {
+    __typename: 'ResourceNotFound',
+    message: 'Resource not found',
+  },
   friendRequestNotFound: {
     __typename: 'FriendRequestNotFound',
     message: 'Friend request not found',
@@ -27,6 +36,10 @@ export const errors = {
   userAlreadyExists: {
     __typename: 'UserAlreadyExists',
     message: 'User already exists!',
+  },
+  alreadyLikedPost: {
+    __typename: 'LikeAlreadyExists',
+    message: 'Post is already Liked by User',
   },
 }
 

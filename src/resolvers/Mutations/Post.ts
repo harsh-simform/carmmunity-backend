@@ -1,4 +1,5 @@
-import { extendType } from 'nexus'
+import { extendType, intArg, stringArg } from 'nexus'
+import { returnError } from '../../utils/helpers'
 
 export const post = extendType({
   type: 'Mutation',
@@ -54,9 +55,22 @@ export const post = extendType({
       args: { params: 'LikePostInput' },
       resolve: async (_parent, { params }, ctx) => {
         const { postId } = params
+        const checkLikes = await ctx.prisma.like.findFirst({
+          where: {
+            author: {
+              id: ctx.userId,
+            },
+            post: {
+              id: postId,
+            },
+          },
+        })
+        if (checkLikes) {
+          return returnError('alreadyLikedPost')
+        }
         return ctx.prisma.like.create({
           data: {
-            user: {
+            author: {
               connect: {
                 id: ctx.userId,
               },
@@ -77,20 +91,12 @@ export const post = extendType({
       resolve: async (_parent, { params }, ctx) => {
         const { postId } = params
         const like = await ctx.prisma.like.findFirst({
-          where: { post: { id: postId } },
+          where: { post: { id: postId }, author: { id: ctx.userId } },
         })
-        return ctx.prisma.like.update({
-          where: {
-            id: like.id,
-          },
-          data: {
-            user: {
-              disconnect: {
-                id: ctx.userId,
-              },
-            },
-          },
-        })
+        if (!like) {
+          return returnError('resourceNotFound')
+        }
+        return ctx.prisma.like.delete({ where: { id: like.id } })
       },
     })
 
@@ -119,24 +125,11 @@ export const post = extendType({
 
     t.field('updateComment', {
       type: 'Comment',
-      args: { params: 'PostCommentInput' },
-      resolve: async (_parent, { params }, ctx) => {
-        const { postId, content } = params
-        const comment = await ctx.prisma.comment.findFirst({
-          where: {
-            AND: [
-              {
-                post: { id: postId },
-              },
-              {
-                author: { id: ctx.userId },
-              },
-            ],
-          },
-        })
+      args: { commentId: intArg(), content: stringArg() },
+      resolve: async (_parent, { commentId, content }, ctx) => {
         return ctx.prisma.comment.update({
           where: {
-            id: comment.id,
+            id: commentId,
           },
           data: {
             content: content,
@@ -147,24 +140,11 @@ export const post = extendType({
 
     t.field('deleteComment', {
       type: 'Comment',
-      args: { params: 'PostCommentInput' },
-      resolve: async (_parent, { params }, ctx) => {
-        const { postId } = params
-        const comment = await ctx.prisma.comment.findFirst({
-          where: {
-            AND: [
-              {
-                post: { id: postId },
-              },
-              {
-                author: { id: ctx.userId },
-              },
-            ],
-          },
-        })
+      args: { commentId: intArg() },
+      resolve: async (_parent, { commentId }, ctx) => {
         return ctx.prisma.comment.delete({
           where: {
-            id: comment.id,
+            id: commentId,
           },
         })
       },

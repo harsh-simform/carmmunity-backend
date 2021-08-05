@@ -9,7 +9,7 @@ export const vehicle = extendType({
         params: 'CreateVehicleInput',
       },
       resolve: async (_parent, { params }, ctx) => {
-        const { year, companyId, modelId, photos } = params
+        const { year, company, model, photos } = params
         const checkUserHasGarage = await ctx.prisma.garage.findFirst({
           where: {
             owner: {
@@ -32,6 +32,21 @@ export const vehicle = extendType({
           })
           garageId = garage.id
         }
+        const createCompany = await ctx.prisma.company.create({
+          data: {
+            name: company,
+          },
+        })
+        const createModel = await ctx.prisma.vehicleModel.create({
+          data: {
+            name: model,
+            maker: {
+              connect: {
+                id: createCompany.id,
+              },
+            },
+          },
+        })
         const vehicle = await ctx.prisma.vehicle.create({
           data: {
             year,
@@ -42,12 +57,12 @@ export const vehicle = extendType({
             },
             make: {
               connect: {
-                id: companyId,
+                id: createCompany.id,
               },
             },
             model: {
               connect: {
-                id: modelId,
+                id: createModel.id,
               },
             },
           },
