@@ -7,6 +7,7 @@ import path from 'path'
 import { PutObjectRequest } from 'aws-sdk/clients/s3'
 import { createReadStream, unlinkSync } from 'fs'
 import { S3 } from 'aws-sdk'
+import { Request, Response, NextFunction } from 'express'
 
 const s3 = new S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,

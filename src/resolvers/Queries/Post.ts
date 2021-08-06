@@ -1,4 +1,4 @@
-import { extendType, intArg } from 'nexus'
+import { extendType } from 'nexus'
 import { handleError } from '../../utils/helpers'
 
 export const post = extendType({
