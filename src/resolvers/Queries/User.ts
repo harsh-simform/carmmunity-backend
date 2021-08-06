@@ -1,4 +1,4 @@
-import { extendType } from 'nexus'
+import { extendType, intArg, stringArg } from 'nexus'
 
 export const user = extendType({
   type: 'Query',
@@ -20,14 +20,65 @@ export const user = extendType({
         params: 'GetRequestInput',
       },
       resolve: (_parent, { params }, ctx) => {
-        const { pagination, filter } = params
+        const { pagination } = params
         return ctx.prisma.friendRequest.findMany({
           ...pagination,
           where: {
-            status: filter,
-            fromUser: {
-              id: ctx.userId,
+            status: 'PENDING',
+            OR: [
+              {
+                toUser: {
+                  id: ctx.userId,
+                },
+              },
+              {
+                fromUser: {
+                  id: ctx.userId,
+                },
+              },
+            ],
+          },
+        })
+      },
+    })
+
+    t.nonNull.list.field('getUsersList', {
+      type: 'User',
+      args: {
+        search: stringArg(),
+        skip: intArg(),
+        take: intArg(),
+      },
+      resolve: async (_parent, { search, take, skip }, ctx) => {
+        return ctx.prisma.user.findMany({
+          take,
+          skip,
+          where: {
+            id: {
+              not: {
+                equals: ctx.userId,
+              },
             },
+            OR: [
+              {
+                firstname: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                lastname: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                email: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+            ],
           },
         })
       },
@@ -50,6 +101,9 @@ export const user = extendType({
               {
                 toFriendRequest: {
                   some: {
+                    fromUser: {
+                      id: ctx.userId,
+                    },
                     status: 'ACCEPTED',
                   },
                 },
@@ -57,6 +111,9 @@ export const user = extendType({
               {
                 fromFriendRequest: {
                   some: {
+                    toUser: {
+                      id: ctx.userId,
+                    },
                     status: 'ACCEPTED',
                   },
                 },

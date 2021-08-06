@@ -7,6 +7,11 @@ export const tokens = {
   },
 }
 
+export interface IS3FileUpload {
+  file: any
+  bucketPath: string
+}
+
 export const APP_SECRET = readFileSync(process.env.PRIVATE_KEY, 'ascii')
 
 export const isDev = () => process.env.NODE_ENV === 'development'

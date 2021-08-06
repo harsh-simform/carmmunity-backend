@@ -14,6 +14,68 @@ export const User = objectType({
     t.model.toFriendRequest()
     t.model.createdAt()
     t.model.updatedAt()
+    t.field('isRequestSent', {
+      type: 'Boolean',
+      args: {},
+      resolve: async (parent, args, ctx) => {
+        const requestCheck = await ctx.prisma.friendRequest.findFirst({
+          where: {
+            status: 'PENDING',
+            OR: [
+              {
+                fromUser: {
+                  id: ctx.userId,
+                },
+                toUser: {
+                  id: parent.id,
+                },
+              },
+              {
+                toUser: {
+                  id: ctx.userId,
+                },
+                fromUser: {
+                  id: parent.id,
+                },
+              },
+            ],
+          },
+        })
+        if (requestCheck) return true
+        return false
+      },
+    })
+    t.field('isFriend', {
+      type: 'Boolean',
+      args: {},
+      resolve: async (parent, args, ctx) => {
+        const friendCheck = await ctx.prisma.friendRequest.findFirst({
+          where: {
+            status: 'ACCEPTED',
+            OR: [
+              {
+                fromUser: {
+                  id: ctx.userId,
+                },
+                toUser: {
+                  id: parent.id,
+                },
+              },
+              {
+                toUser: {
+                  id: ctx.userId,
+                },
+                fromUser: {
+                  id: parent.id,
+                },
+              },
+            ],
+          },
+        })
+        if (friendCheck) return true
+        return false
+      },
+    })
   },
 })
 

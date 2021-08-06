@@ -68,7 +68,7 @@ export const GetRequestInput = inputObjectType({
   name: 'GetRequestInput',
   definition(t) {
     t.field('pagination', { type: 'PaginationInput' })
-    t.nonNull.field('filter', { type: 'RelationStatus' })
+    // t.nonNull.field('filter', { type: 'RelationStatus' })
   },
 })
 

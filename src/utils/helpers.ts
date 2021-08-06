@@ -3,11 +3,11 @@ import { PubSub } from 'apollo-server'
 import { sign, verify } from 'jsonwebtoken'
 import { APP_SECRET, Errors, errors, IS3FileUpload, tokens } from './constants'
 import { Context, Token } from '../types'
-import { Request, Response, NextFunction } from 'express'
-import * as path from 'path'
-import { S3 } from 'aws-sdk'
+import path from 'path'
 import { PutObjectRequest } from 'aws-sdk/clients/s3'
 import { createReadStream, unlinkSync } from 'fs'
+import { S3 } from 'aws-sdk'
+import { Request, Response, NextFunction } from 'express'
 
 const s3 = new S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
