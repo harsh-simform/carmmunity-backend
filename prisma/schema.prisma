@@ -24,7 +24,7 @@ model User {
   garage            Garage?
   comment           Comment[]
   like              Like[]
-  relationPost      Post[]          @relation("author_user")
+  relationPosts     Post[]          @relation("author_user")
 }
 
 model Post {
@@ -35,10 +35,10 @@ model Post {
   comments       Comment[]
   likes          Like[]
   authorId       Int?
-  relationUser   User?     @relation(name: "author_user", fields: [relationUserId], references: [id])
   author         User?     @relation(fields: [authorId], references: [id])
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  relationUser   User?     @relation(name: "author_user", fields: [relationUserId], references: [id])
   relationUserId Int?
 }
 
