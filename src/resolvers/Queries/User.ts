@@ -25,18 +25,9 @@ export const user = extendType({
           ...pagination,
           where: {
             status: 'PENDING',
-            OR: [
-              {
-                toUser: {
-                  id: ctx.userId,
-                },
-              },
-              {
-                fromUser: {
-                  id: ctx.userId,
-                },
-              },
-            ],
+            toUser: {
+              id: ctx.userId,
+            },
           },
         })
       },
