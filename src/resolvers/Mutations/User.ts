@@ -47,7 +47,7 @@ export const user = extendType({
           if (!request) {
             return returnError('friendRequestNotFound')
           }
-          return ctx.prisma.friendRequest.update({
+          const friendRequest = await ctx.prisma.friendRequest.update({
             where: {
               id: request.id,
             },
@@ -55,6 +55,24 @@ export const user = extendType({
               status: 'ACCEPTED',
             },
           })
+
+          await ctx.prisma.post.create({
+            data: {
+              type: 'RELATION',
+              author: {
+                connect: {
+                  id: ctx.userId,
+                },
+              },
+              relationUser: {
+                connect: {
+                  id: fromUserId,
+                },
+              },
+            },
+          })
+
+          return friendRequest
         } catch (err) {
           handleError(err)
         }

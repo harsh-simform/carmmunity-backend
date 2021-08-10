@@ -91,6 +91,7 @@ export const Post = objectType({
     t.model.type()
     t.model.createdAt()
     t.model.updatedAt()
+    t.model.relationUser()
     t.field('isLiked', {
       type: 'Boolean',
       args: {},
