@@ -31,7 +31,6 @@ app.post(
         bucketPath: path,
         file,
       })
-      console.log({ fileUpload })
       res.status(200).json({
         message: 'Success',
         data: fileUpload,

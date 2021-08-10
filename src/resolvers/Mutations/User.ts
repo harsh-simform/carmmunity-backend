@@ -36,7 +36,6 @@ export const user = extendType({
       },
       resolve: async (_parent, { fromUserId }, ctx) => {
         try {
-          console.log({ fromUserId })
           const request = await ctx.prisma.friendRequest.findUnique({
             where: {
               toUserId_fromUserId: {
@@ -48,7 +47,7 @@ export const user = extendType({
           if (!request) {
             return returnError('friendRequestNotFound')
           }
-          const friendRequest = ctx.prisma.friendRequest.update({
+          const friendRequest = await ctx.prisma.friendRequest.update({
             where: {
               id: request.id,
             },
