@@ -12,6 +12,7 @@ export const User = objectType({
     t.model.posts()
     t.model.fromFriendRequest()
     t.model.toFriendRequest()
+    t.model.settings()
     t.model.createdAt()
     t.model.updatedAt()
     t.field('isRequestSent', {
