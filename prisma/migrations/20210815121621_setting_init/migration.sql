@@ -4,6 +4,12 @@ CREATE TYPE "RelationStatus" AS ENUM ('PENDING', 'ACCEPTED', 'REJECTED');
 -- CreateEnum
 CREATE TYPE "FeedType" AS ENUM ('POST', 'RELATION', 'VEHICLE_ADDED');
 
+-- CreateEnum
+CREATE TYPE "PrivacyOption" AS ENUM ('PUBLIC', 'FRIENDS', 'ME');
+
+-- CreateEnum
+CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE', 'OTHER');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
@@ -11,8 +17,23 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "firstname" TEXT NOT NULL,
     "lastname" TEXT NOT NULL,
+    "profilePic" TEXT,
+    "gender" "Gender",
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
+    "settingId" INTEGER,
+
+    PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Setting" (
+    "id" SERIAL NOT NULL,
+    "photos" "PrivacyOption" NOT NULL,
+    "garage" "PrivacyOption" NOT NULL,
+    "friends" "PrivacyOption" NOT NULL,
+    "events" "PrivacyOption" NOT NULL,
+    "location" "PrivacyOption" NOT NULL,
 
     PRIMARY KEY ("id")
 );
@@ -25,6 +46,7 @@ CREATE TABLE "Post" (
     "authorId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "relationUserId" INTEGER,
 
     PRIMARY KEY ("id")
 );
@@ -131,7 +153,13 @@ CREATE UNIQUE INDEX "Garage_userId_unique" ON "Garage"("userId");
 CREATE UNIQUE INDEX "FriendRequest.toUserId_fromUserId_unique" ON "FriendRequest"("toUserId", "fromUserId");
 
 -- AddForeignKey
+ALTER TABLE "User" ADD FOREIGN KEY ("settingId") REFERENCES "Setting"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Post" ADD FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Post" ADD FOREIGN KEY ("relationUserId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Like" ADD FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

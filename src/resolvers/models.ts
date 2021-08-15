@@ -211,6 +211,18 @@ export const VehicleModel = objectType({
   },
 })
 
+export const Setting = objectType({
+  name: 'Setting',
+  definition(t) {
+    t.model.id()
+    t.model.events()
+    t.model.friends()
+    t.model.garage()
+    t.model.location()
+    t.model.photos()
+  },
+})
+
 export const FeedType = enumType({
   name: 'FeedType',
   members: ['POST', 'RELATION', 'VEHICLE_ADDED'],

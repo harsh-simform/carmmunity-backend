@@ -17,6 +17,7 @@ model User {
   lastname          String
   profilePic        String?
   posts             Post[]
+  gender            Gender?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime?       @updatedAt
   fromFriendRequest FriendRequest[] @relation(name: "from_user")
@@ -25,6 +26,18 @@ model User {
   comment           Comment[]
   like              Like[]
   relationPosts     Post[]          @relation("author_user")
+  settings          Setting?        @relation(fields: [settingId], references: [id])
+  settingId         Int?
+}
+
+model Setting {
+  id       Int           @id @default(autoincrement())
+  photos   PrivacyOption
+  garage   PrivacyOption
+  friends  PrivacyOption
+  events   PrivacyOption
+  location PrivacyOption
+  User     User[]
 }
 
 model Post {
@@ -140,4 +153,16 @@ enum FeedType {
   POST
   RELATION
   VEHICLE_ADDED
+}
+
+enum PrivacyOption {
+  PUBLIC
+  FRIENDS
+  ME
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
