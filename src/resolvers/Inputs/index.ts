@@ -92,3 +92,18 @@ export const ModelFilterInput = inputObjectType({
     t.nonNull.string('make')
   },
 })
+
+export const EditUserInput = inputObjectType({
+  name: 'EditUserInput',
+  definition(t) {
+    t.string('firstname')
+    t.string('lastname')
+    t.field('gender', { type: 'Gender' })
+    t.string('profilePic')
+    t.field('location', { type: 'PrivacyOption' })
+    t.field('photos', { type: 'PrivacyOption' })
+    t.field('garage', { type: 'PrivacyOption' })
+    t.field('friends', { type: 'PrivacyOption' })
+    t.field('events', { type: 'PrivacyOption' })
+  },
+})

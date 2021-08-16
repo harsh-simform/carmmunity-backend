@@ -1,9 +1,112 @@
 import { extendType, intArg, stringArg } from 'nexus'
 import { returnError, handleError } from '../../utils/helpers'
+import { Prisma } from '@prisma/client'
 
 export const user = extendType({
   type: 'Mutation',
   definition(t) {
+    t.field('editUserProfile', {
+      type: 'User',
+      args: {
+        params: 'EditUserInput',
+      },
+      resolve: async (_parent, { params }, ctx) => {
+        const {
+          events,
+          firstname,
+          friends,
+          garage,
+          gender,
+          lastname,
+          location,
+          photos,
+          profilePic,
+        } = params
+
+        let updateData: Prisma.UserUpdateInput = {}
+
+        if (firstname) {
+          updateData.firstname = firstname
+        }
+
+        if (lastname) {
+          updateData.lastname = firstname
+        }
+
+        if (gender) {
+          updateData.gender = gender
+        }
+
+        if (profilePic) {
+          updateData.profilePic = profilePic
+        }
+
+        if (location) {
+          updateData = {
+            ...updateData,
+            settings: {
+              upsert: {
+                update: { location },
+                create: { location },
+              },
+            },
+          }
+        }
+
+        if (photos) {
+          updateData = {
+            ...updateData,
+            settings: {
+              upsert: {
+                update: { photos },
+                create: { photos },
+              },
+            },
+          }
+        }
+
+        if (garage) {
+          updateData = {
+            ...updateData,
+            settings: {
+              upsert: {
+                update: { garage },
+                create: { garage },
+              },
+            },
+          }
+        }
+
+        if (friends) {
+          updateData = {
+            ...updateData,
+            settings: {
+              upsert: {
+                update: { friends },
+                create: { friends },
+              },
+            },
+          }
+        }
+
+        if (events) {
+          updateData = {
+            ...updateData,
+            settings: {
+              upsert: {
+                update: { events },
+                create: { events },
+              },
+            },
+          }
+        }
+
+        return ctx.prisma.user.update({
+          where: { id: ctx.userId },
+          data: updateData,
+        })
+      },
+    })
     t.field('addFriendRequest', {
       type: 'FriendRequest',
       args: {

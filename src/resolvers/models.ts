@@ -8,6 +8,7 @@ export const User = objectType({
     t.model.firstname()
     t.model.lastname()
     t.model.profilePic()
+    t.model.gender()
     t.model.garage()
     t.model.posts()
     t.model.fromFriendRequest()

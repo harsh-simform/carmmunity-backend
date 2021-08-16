@@ -32,11 +32,11 @@ model User {
 
 model Setting {
   id       Int           @id @default(autoincrement())
-  photos   PrivacyOption
-  garage   PrivacyOption
-  friends  PrivacyOption
-  events   PrivacyOption
-  location PrivacyOption
+  photos   PrivacyOption?
+  garage   PrivacyOption?
+  friends  PrivacyOption?
+  events   PrivacyOption?
+  location PrivacyOption?
   User     User[]
 }
 
