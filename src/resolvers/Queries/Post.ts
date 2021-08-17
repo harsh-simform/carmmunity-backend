@@ -12,6 +12,14 @@ export const post = extendType({
       resolve: async (_parent, { params }, ctx) => {
         try {
           const { pagination, searchTerm } = params
+          // const user = await ctx.prisma.user.findUnique({
+          //   where: { id: ctx.userId },
+          // })
+          // const setting = await ctx.prisma.setting.findUnique({
+          //   where: {
+          //     id: user.settingId,
+          //   },
+          // })
           const friends = await ctx.prisma.friendRequest.findMany({
             where: {
               AND: [
