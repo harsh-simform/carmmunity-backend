@@ -107,6 +107,7 @@ export const user = extendType({
         })
       },
     })
+
     t.field('addFriendRequest', {
       type: 'FriendRequest',
       args: {
@@ -147,9 +148,11 @@ export const user = extendType({
               },
             },
           })
+
           if (!request) {
             return returnError('friendRequestNotFound')
           }
+
           const friendRequest = await ctx.prisma.friendRequest.update({
             where: {
               id: request.id,

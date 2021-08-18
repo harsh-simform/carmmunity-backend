@@ -41,6 +41,9 @@ export const user = extendType({
         take: intArg(),
       },
       resolve: async (_parent, { search, take, skip }, ctx) => {
+        if (!search) {
+          return []
+        }
         return ctx.prisma.user.findMany({
           take,
           skip,
@@ -80,35 +83,57 @@ export const user = extendType({
       args: {
         params: 'GetFriendsInput',
       },
-      resolve: (_parent, { params }, ctx) => {
-        const { pagination } = params
+      resolve: async (_parent, { params }, ctx) => {
+        const { pagination, searchTerm } = params
+        const requests = await ctx.prisma.friendRequest.findMany({
+          where: {
+            status: 'ACCEPTED',
+            OR: [
+              {
+                fromUserId: ctx.userId,
+              },
+              {
+                toUserId: ctx.userId,
+              },
+            ],
+          },
+        })
+        const userIds: number[] = []
+        requests.forEach((item) => {
+          if (item.fromUserId !== ctx.userId) {
+            userIds.push(item.fromUserId)
+          }
+          if (item.toUserId !== ctx.userId) {
+            userIds.push(item.toUserId)
+          }
+        })
         return ctx.prisma.user.findMany({
           ...pagination,
           where: {
-            id: {
-              not: ctx.userId,
-            },
-            OR: [
+            AND: [
               {
-                toFriendRequest: {
-                  some: {
-                    fromUser: {
-                      id: ctx.userId,
-                    },
-                    status: 'ACCEPTED',
-                  },
+                id: {
+                  in: userIds,
                 },
               },
-              {
-                fromFriendRequest: {
-                  some: {
-                    toUser: {
-                      id: ctx.userId,
-                    },
-                    status: 'ACCEPTED',
-                  },
-                },
-              },
+              searchTerm
+                ? {
+                    OR: [
+                      {
+                        firstname: {
+                          contains: searchTerm,
+                          mode: 'insensitive',
+                        },
+                      },
+                      {
+                        lastname: {
+                          contains: searchTerm,
+                          mode: 'insensitive',
+                        },
+                      },
+                    ],
+                  }
+                : {},
             ],
           },
         })

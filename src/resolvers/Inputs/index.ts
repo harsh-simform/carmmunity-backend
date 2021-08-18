@@ -76,6 +76,7 @@ export const GetFriendsInput = inputObjectType({
   name: 'GetFriendsInput',
   definition(t) {
     t.field('pagination', { type: 'PaginationInput' })
+    t.nullable.string('searchTerm')
   },
 })
 

@@ -30,6 +30,19 @@ model User {
   settingId         Int?
 }
 
+model FriendRequest {
+  id         Int            @id @default(autoincrement())
+  status     RelationStatus
+  toUserId   Int
+  fromUserId Int
+  fromUser   User           @relation(name: "from_user", fields: [fromUserId], references: [id])
+  toUser     User           @relation(name: "to_user", fields: [toUserId], references: [id])
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([toUserId, fromUserId])
+}
+
 model Setting {
   id       Int            @id @default(autoincrement())
   photos   PrivacyOption?
@@ -129,19 +142,6 @@ model Company {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   vehicleModel VehicleModel[]
-}
-
-model FriendRequest {
-  id         Int            @id @default(autoincrement())
-  status     RelationStatus
-  toUserId   Int
-  fromUserId Int
-  fromUser   User           @relation(name: "from_user", fields: [fromUserId], references: [id])
-  toUser     User           @relation(name: "to_user", fields: [toUserId], references: [id])
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-
-  @@unique([toUserId, fromUserId])
 }
 
 enum RelationStatus {
